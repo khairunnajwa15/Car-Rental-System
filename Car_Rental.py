@@ -1,6 +1,13 @@
 import streamlit as st
 import random
 
+# ============================================================
+# CAR RENTAL SYSTEM
+# Practical Work 2 - Python Programming
+# Name: KHAIRUN NAJWA BINTI ROZAIDI
+# No.Matrik: 25DIT24F1042
+# Class: DIT5B
+# ============================================================
 
 # ---------------- FUNCTIONS ----------------
 
@@ -137,10 +144,8 @@ customer2 = st.session_state.customer2
 st.title("Car Rental System")
 
 st.write("### Student Information")
-st.write("Practical Work 2")
-st.write("Name: KHAIRUN NAJWA BINTI ROZAIDI")
-st.write("No.Matrik: 25DIT24F1042")
-st.write("Class: DIT5B")
+st.write("Be our regular customer to get 15% discount!!")
+
 
 name = st.text_input("Name")
 registration = st.text_input("IC Number")
