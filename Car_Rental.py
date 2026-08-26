@@ -137,6 +137,7 @@ customer2 = st.session_state.customer2
 st.title("Car Rental System")
 
 st.write("### Student Information")
+st.write("Practical Work 2")
 
 name = st.text_input("Name")
 registration = st.text_input("Registration Number")
@@ -158,11 +159,11 @@ if choice == "View Available Vehicles":
 
     st.write("### Available Vehicles")
 
-    for code, vehicle in vehicles.items():
-        st.write(
-            code, "-", vehicle[0],
-            "- RM", vehicle[1], "per day"
-        )
+    for code, vehicle in customer.display_vehicles().items():
+    st.write(
+        code, "-", vehicle[0],
+        "- RM", vehicle[1], "per day"
+    )
 
 
 # ---------------- BOOK VEHICLE ----------------
@@ -229,7 +230,7 @@ elif choice == "View Rental Booking":
             days = booking[1]
 
             model = vehicles[code][0]
-            rate = vehicles[code][1]
+            rate = customer.get_rate(code)
 
             st.write(
                 i, "-", model,
