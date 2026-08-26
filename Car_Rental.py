@@ -1,9 +1,109 @@
 import streamlit as st
-from PW2_Car_Rental_Light import RentalAgency, Customer, calculate_total
+import random
 
-st.title("Car Rental System")
 
-# Vehicle dictionary
+# ---------------- FUNCTIONS ----------------
+
+def display_menu():
+    menu = [
+        "View Available Vehicles",
+        "Book Vehicle Rental",
+        "Cancel Vehicle Booking",
+        "View Rental Booking",
+        "Add Payment",
+        "Checkout",
+        "Exit"
+    ]
+    return menu
+
+
+def calculate_total(bookings, vehicles):
+    total = 0
+
+    for vehicle_code, days in bookings:
+        if vehicle_code in vehicles:
+            rate = vehicles[vehicle_code][1]
+            total = total + (rate * days)
+
+    return total
+
+
+# ---------------- PARENT CLASS ----------------
+
+class RentalAgency:
+
+    def __init__(self, agency_name, vehicles):
+        self.agency_name = agency_name
+        self.vehicles = vehicles
+
+    def display_vehicles(self):
+        return self.vehicles
+
+    def get_rate(self, vehicle_code):
+        if vehicle_code in self.vehicles:
+            return self.vehicles[vehicle_code][1]
+        return 0
+
+
+# ---------------- CHILD CLASS ----------------
+
+class Customer(RentalAgency):
+
+    def __init__(self, agency_name, vehicles, customer_name):
+        super().__init__(agency_name, vehicles)
+
+        self.customer_name = customer_name
+        self.payment = 0
+        self.bookings = []
+
+    def book_vehicle(self, vehicle_code, days):
+        if vehicle_code in self.vehicles and days > 0:
+            self.bookings.append((vehicle_code, days))
+            return True
+        return False
+
+    def cancel_booking(self, number):
+        if 1 <= number <= len(self.bookings):
+            self.bookings.pop(number - 1)
+            return True
+        return False
+
+    def view_booking(self):
+        return self.bookings
+
+    # Optional bonus parameter demonstrates overloading
+    def add_payment(self, amount, bonus=0):
+        self.payment = self.payment + amount + bonus
+
+    def checkout(self):
+        total = calculate_total(self.bookings, self.vehicles)
+
+        if len(self.bookings) == 0:
+            return None
+
+        if self.payment >= total:
+            booking_id = "CLN-" + str(random.randint(1000, 9999))
+            self.bookings.clear()
+            self.payment = 0
+            return booking_id
+
+        return False
+
+    # Operator overloading
+    def __add__(self, other):
+        return len(self.bookings) + len(other.bookings)
+
+    # Magic method
+    def __str__(self):
+        return self.customer_name + " - RM" + str(self.payment)
+
+    # Magic method
+    def __len__(self):
+        return len(self.bookings)
+
+
+# ---------------- VEHICLES ----------------
+
 vehicles = {
     101: ("Perodua Myvi", 80),
     102: ("Proton Saga", 70),
@@ -11,131 +111,211 @@ vehicles = {
     104: ("Toyota Vios", 110)
 }
 
-# Create objects only once
+
+# ---------------- CREATE OBJECTS ----------------
+
 if "customer" not in st.session_state:
-    agency = RentalAgency("CLN Car Rental", vehicles)
     st.session_state.customer = Customer(
-        agency.agency_name,
-        agency.vehicles,
-        ""
+        "CLN Car Rental",
+        vehicles,
+        "Customer"
+    )
+
+if "customer2" not in st.session_state:
+    st.session_state.customer2 = Customer(
+        "CLN Car Rental",
+        vehicles,
+        "Second Customer"
     )
 
 customer = st.session_state.customer
+customer2 = st.session_state.customer2
 
-# Student information
-st.subheader("Student Information")
+
+# ---------------- STREAMLIT PAGE ----------------
+
+st.title("Car Rental System")
+
+st.write("### Student Information")
+
 name = st.text_input("Name")
 registration = st.text_input("Registration Number")
 student_class = st.text_input("Class")
 
-customer.customer_name = name
+if name:
+    customer.customer_name = name
 
-# Menu
-st.subheader("Menu")
-choice = st.selectbox(
-    "Choose an option",
-    [
-        "View Available Vehicles",
-        "Book Vehicle Rental",
-        "Cancel Vehicle Booking",
-        "View Rental Booking",
-        "Add Payment",
-        "Checkout"
-    ]
-)
 
-# 1. View vehicles
+# Use the required display_menu() function
+menu = display_menu()
+
+choice = st.selectbox("Choose an option", menu)
+
+
+# ---------------- VIEW VEHICLES ----------------
+
 if choice == "View Available Vehicles":
+
     st.write("### Available Vehicles")
 
     for code, vehicle in vehicles.items():
         st.write(
-            f"{code} - {vehicle[0]} - RM{vehicle[1]} per day"
+            code, "-", vehicle[0],
+            "- RM", vehicle[1], "per day"
         )
 
-# 2. Book vehicle
+
+# ---------------- BOOK VEHICLE ----------------
+
 elif choice == "Book Vehicle Rental":
-    code = st.selectbox("Vehicle", list(vehicles.keys()))
-    days = st.number_input("Rental Days", min_value=1, step=1)
 
-    if st.button("Book"):
-        customer.book_vehicle(code, days)
-        st.success("Vehicle booked successfully.")
+    code = st.selectbox(
+        "Vehicle Code",
+        list(vehicles.keys())
+    )
 
-# 3. Cancel booking
+    days = st.number_input(
+        "Rental Days",
+        min_value=1,
+        step=1
+    )
+
+    if st.button("Book Vehicle"):
+
+        if customer.book_vehicle(code, days):
+            st.success("Vehicle booked successfully.")
+        else:
+            st.error("Invalid booking.")
+
+
+# ---------------- CANCEL BOOKING ----------------
+
 elif choice == "Cancel Vehicle Booking":
-    if len(customer.bookings) == 0:
+
+    if len(customer) == 0:
+
         st.info("No active booking.")
+
     else:
-        booking_no = st.number_input(
-            "Booking number",
+
+        number = st.number_input(
+            "Booking Number",
             min_value=1,
-            max_value=len(customer.bookings),
+            max_value=len(customer),
             step=1
         )
 
-        if st.button("Cancel"):
-            customer.bookings.pop(booking_no - 1)
-            st.success("Booking cancelled.")
+        if st.button("Cancel Booking"):
 
-# 4. View booking
+            if customer.cancel_booking(number):
+                st.success("Booking cancelled.")
+
+
+# ---------------- VIEW BOOKING ----------------
+
 elif choice == "View Rental Booking":
-    if len(customer.bookings) == 0:
+
+    if len(customer) == 0:
+
         st.info("No active booking.")
+
     else:
-        for i, booking in enumerate(customer.bookings, 1):
-            code, days = booking
+
+        st.write("### Your Booking")
+
+        for i, booking in enumerate(customer.view_booking(), 1):
+
+            code = booking[0]
+            days = booking[1]
+
             model = vehicles[code][0]
             rate = vehicles[code][1]
 
             st.write(
-                f"{i}. {model} - {days} day(s) - "
-                f"RM{rate * days:.2f}"
+                i, "-", model,
+                "-", days, "day(s)",
+                "- RM", rate * days
             )
 
-        total = calculate_total(customer.bookings, vehicles)
-        st.write(f"**Total: RM{total:.2f}**")
+        total = calculate_total(
+            customer.view_booking(),
+            vehicles
+        )
 
-# 5. Add payment
+        st.write("**Total: RM", total, "**")
+
+
+# ---------------- ADD PAYMENT ----------------
+
 elif choice == "Add Payment":
+
     amount = st.number_input(
         "Payment Amount (RM)",
         min_value=0.0,
         step=10.0
     )
 
+    bonus = st.number_input(
+        "Bonus (RM)",
+        min_value=0.0,
+        step=5.0
+    )
+
     if st.button("Add Payment"):
-        customer.add_payment(amount)
-        st.success(f"Payment added. Current balance: RM{customer.payment:.2f}")
 
-# 6. Checkout
+        customer.add_payment(amount, bonus)
+
+        st.success("Payment added.")
+        st.write("Current payment: RM", customer.payment)
+
+
+# ---------------- CHECKOUT ----------------
+
 elif choice == "Checkout":
-    if len(customer.bookings) == 0:
-        st.info("No booking to checkout.")
-    else:
-        total = calculate_total(customer.bookings, vehicles)
 
-        st.write(f"Total: RM{total:.2f}")
-        st.write(f"Payment: RM{customer.payment:.2f}")
+    if len(customer) == 0:
+
+        st.info("No booking to checkout.")
+
+    else:
+
+        total = calculate_total(
+            customer.bookings,
+            vehicles
+        )
+
+        st.write("Total: RM", total)
+        st.write("Payment: RM", customer.payment)
 
         if st.button("Checkout"):
-            if customer.payment >= total:
-                import random
 
-                booking_id = "CLN-" + str(random.randint(1000, 9999))
+            result = customer.checkout()
 
-                st.success("Checkout successful!")
-                st.write("Customer:", customer.customer_name)
-                st.write("Booking ID:", booking_id)
-                st.write(f"Total: RM{total:.2f}")
-
-                customer.bookings.clear()
-                customer.payment = 0
-            else:
+            if result is False:
                 st.error("Not enough payment.")
 
-# Simple OOP demonstration
+            else:
+                st.success("Checkout successful.")
+                st.write("Customer:", customer.customer_name)
+                st.write("Booking ID:", result)
+
+
+# ---------------- EXIT ----------------
+
+elif choice == "Exit":
+
+    st.info("Thank you for using the Car Rental System.")
+
+
+# ---------------- OOP DEMONSTRATION ----------------
+
 st.divider()
-st.subheader("OOP Information")
-st.write(str(customer))
+st.write("### OOP Demonstration")
+
+st.write("Customer:", str(customer))
 st.write("Active bookings:", len(customer))
+
+st.write(
+    "Combined bookings of two Customer objects:",
+    customer + customer2
+)
