@@ -309,16 +309,3 @@ elif choice == "Exit":
 
     st.info("Thank you for using the Car Rental System.")
 
-
-# ---------------- OOP DEMONSTRATION ----------------
-
-st.divider()
-st.write("### OOP Demonstration")
-
-st.write("Customer:", str(customer))
-st.write("Active bookings:", len(customer))
-
-st.write(
-    "Combined bookings of two Customer objects:",
-    customer + customer2
-)
