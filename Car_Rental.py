@@ -138,10 +138,13 @@ st.title("Car Rental System")
 
 st.write("### Student Information")
 st.write("Practical Work 2")
+st.write("Name: KHAIRUN NAJWA BINTI ROZAIDI")
+st.write("No.Matrik: 25DIT24F1042")
+st.write("Class: DIT5B")
 
 name = st.text_input("Name")
-registration = st.text_input("Registration Number")
-student_class = st.text_input("Class")
+registration = st.text_input("IC Number")
+student_class = st.text_input("Phone Number")
 
 if name:
     customer.customer_name = name
