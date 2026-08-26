@@ -160,11 +160,10 @@ if choice == "View Available Vehicles":
     st.write("### Available Vehicles")
 
     for code, vehicle in customer.display_vehicles().items():
-    st.write(
-        code, "-", vehicle[0],
-        "- RM", vehicle[1], "per day"
-    )
-
+        st.write(
+            code, "-", vehicle[0],
+            "- RM", vehicle[1], "per day"
+        )
 
 # ---------------- BOOK VEHICLE ----------------
 
