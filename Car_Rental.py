@@ -314,3 +314,8 @@ elif choice == "Exit":
 
     st.info("Thank you for using the Car Rental System.")
 
+# ---------------- FOOTER ----------------
+
+st.divider()
+st.caption("© 2026 CLN Car Rental | All Rights Reserved")
+st.caption("DFK50083 Python Programming — Practical Work 2")
