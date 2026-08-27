@@ -315,7 +315,13 @@ elif choice == "Exit":
     st.info("Thank you for using the Car Rental System.")
 
 # ---------------- FOOTER ----------------
+st.write("Customer:", str(customer))
+st.write("Active bookings:", len(customer))
 
+st.write(
+    "Combined bookings of two Customer objects:",
+    customer + customer2
+)
 st.divider()
 st.caption("© 2026 CLN Car Rental | All Rights Reserved")
 st.caption("DFK50083 Python Programming — Practical Work 2")
