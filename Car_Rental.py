@@ -315,6 +315,8 @@ elif choice == "Exit":
     st.info("Thank you for using the Car Rental System.")
 
 # ---------------- FOOTER ----------------
+
+st.divider()
 st.write("Customer:", str(customer))
 st.write("Active bookings:", len(customer))
 
